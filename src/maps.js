@@ -149,7 +149,7 @@ var mapPacman = new Map(28, 36, (
 mapPacman.name = "Pac-Man";
 //mapPacman.wallStrokeColor = "#47b897"; // from Pac-Man Plus
 mapPacman.wallStrokeColor = "#2121ff"; // from original
-mapPacman.wallFillColor = "#000";
+mapPacman.wallFillColor = "#FFFF00";
 mapPacman.pelletColor = "#ffb8ae";
 mapPacman.constrainGhostTurns = function(tile,openTiles) {
     // prevent ghost from turning up at these tiles
@@ -198,6 +198,11 @@ var getActColor = function(act) {
 };
 
 var getActRange = function(act) {
+        return [1,2,3,4,5,6,7,8,9,10,11,12,13];
+
+};
+/*
+var getActRange = function(act) {
     if (act == 1) {
         return [1,2];
     }
@@ -209,6 +214,7 @@ var getActRange = function(act) {
         return [start, start+3];
     }
 };
+*/
 
 var getCookieActColor = function(act) {
     var colors = [

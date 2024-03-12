@@ -1,33 +1,123 @@
-var pacSprite = new Image();
-pacSprite.src =  "https://blackmarblecollective.com/dev79/sprites/devman-open.png";
-var pacSpriteClosed = new Image();
-pacSpriteClosed.src =  "https://blackmarblecollective.com/dev79/sprites/devman-closed.png";
-
-var ghostSprite = new Image();
-ghostSprite.src =  "https://blackmarblecollective.com/dev79/sprites/ghosts/fpo-test-ghost-1.png";
-
-var ghostScaredSprite = new Image();
-ghostScaredSprite.src =  "https://blackmarblecollective.com/dev79/sprites/ghosts/fpo-test-ghost-scared.png";
-
-var defualtImageSprite = function(ctx,x,y,dirEnum,angle,mouthShift,scale,centerShift,alpha,color,rot_angle) {
-    
-        ctx.save();
-        //ctx.translate(x,y);
-        ctx.scale(scale,scale);
-
-        // To use the custom size we'll have to specify the scale parameters
-        // using the element's width and height properties - lets draw one
-        // on top in the corner:
-        ctx.drawImage(pacSprite, x-10, y-10, 20, 20);
-        ctx.restore();
-};
 //////////////////////////////////////////////////////////////////////////////////////
 // Sprites
 // (sprites are created using canvas paths)
 
 var drawGhostSprite = (function(){
 
+    // add top of the ghost head to the current canvas path
+    var addHead = (function() {
 
+        // pixel coordinates for the top of the head
+        // on the original arcade ghost sprite
+        var coords = [
+            0,6,
+            1,3,
+            2,2,
+            3,1,
+            4,1,
+            5,0,
+            8,0,
+            9,1,
+            10,1,
+            11,2,
+            12,3,
+            13,6,
+        ];
+
+        return function(ctx) {
+            var i;
+            ctx.save();
+
+            // translate by half a pixel to the right
+            // to try to force centering
+            ctx.translate(0.5,0);
+
+            ctx.moveTo(0,6);
+            ctx.quadraticCurveTo(1.5,0,6.5,0);
+            ctx.quadraticCurveTo(11.5,0,13,6);
+
+            // draw lines between pixel coordinates
+            /*
+            ctx.moveTo(coords[0],coords[1]);
+            for (i=2; i<coords.length; i+=2)
+                ctx.lineTo(coords[i],coords[i+1]);
+            */
+
+            ctx.restore();
+        };
+    })();
+
+    // add first ghost animation frame feet to the current canvas path
+    var addFeet1 = (function(){
+
+        // pixel coordinates for the first feet animation
+        // on the original arcade ghost sprite
+        var coords = [
+            13,13,
+            11,11,
+            9,13,
+            8,13,
+            8,11,
+            5,11,
+            5,13,
+            4,13,
+            2,11,
+            0,13,
+        ];
+
+        return function(ctx) {
+            var i;
+            ctx.save();
+
+            // translate half a pixel right and down
+            // to try to force centering and proper height
+            ctx.translate(0.5,0.5);
+
+            // continue previous path (assuming ghost head)
+            // by drawing lines to each of the pixel coordinates
+            for (i=0; i<coords.length; i+=2)
+                ctx.lineTo(coords[i],coords[i+1]);
+
+            ctx.restore();
+        };
+
+    })();
+
+    // add second ghost animation frame feet to the current canvas path
+    var addFeet2 = (function(){
+
+        // pixel coordinates for the second feet animation
+        // on the original arcade ghost sprite
+        var coords = [
+            13,12,
+            12,13,
+            11,13,
+            9,11,
+            7,13,
+            6,13,
+            4,11,
+            2,13,
+            1,13,
+            0,12,
+        ];
+
+        return function(ctx) {
+            var i;
+            ctx.save();
+
+            // translate half a pixel right and down
+            // to try to force centering and proper height
+            ctx.translate(0.5,0.5);
+
+            // continue previous path (assuming ghost head)
+            // by drawing lines to each of the pixel coordinates
+            for (i=0; i<coords.length; i+=2)
+                ctx.lineTo(coords[i],coords[i+1]);
+
+            ctx.restore();
+        };
+
+    })();
 
     // draw regular ghost eyes
     var addEyes = function(ctx,dirEnum){
@@ -143,12 +233,22 @@ var drawGhostSprite = (function(){
             color = flash ? "#FFF" : "#2121ff";
 
         if (!eyes_only) {
-
-            if (scared)
-                ctx.drawImage(ghostScaredSprite, -4,-4, 18, 18);
+            // draw body
+            ctx.beginPath();
+            addHead(ctx);
+            if (frame == 0)
+                addFeet1(ctx);
             else
-                ctx.drawImage(ghostSprite, -4,-4, 18, 18);
-
+                addFeet2(ctx);
+            ctx.closePath();
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            ctx.lineWidth = 1;
+            ctx.fillStyle = color;
+            ctx.fill();
         }
 
         // draw face
@@ -1340,7 +1440,7 @@ var drawDeadOttoSprite = function(ctx,x,y) {
 };
 
 // draw pacman body
-/*
+
 var drawPacmanSprite = function(ctx,x,y,dirEnum,angle,mouthShift,scale,centerShift,alpha,color,rot_angle) {
 
     if (mouthShift == undefined) mouthShift = 0;
@@ -1380,38 +1480,6 @@ var drawPacmanSprite = function(ctx,x,y,dirEnum,angle,mouthShift,scale,centerShi
     ctx.fill();
 
     ctx.restore();
-};
-*/
-var drawPacmanSprite = function(ctx,x,y,dirEnum,angle,mouthShift,scale,centerShift,alpha,color,rot_angle) {
-        
-        if (scale == undefined) scale = 1;
-        ctx.save();
-        ctx.translate(x,y);
-        ctx.scale(scale,scale);
-
-        var d90 = Math.PI/2;
-        if (dirEnum == DIR_UP){
-            ctx.rotate(3*d90);
-        }else if (dirEnum == DIR_RIGHT){ 
-            ctx.rotate(0);
-        }else if (dirEnum == DIR_DOWN){
-            ctx.rotate(d90);
-        }else if (dirEnum == DIR_LEFT){
-            ctx.scale(-1,1);
-        } 
-        ctx.translate(-x,-y);
-
-        if(angle===0){
-            ctx.drawImage(pacSpriteClosed, x-10, y-10, 20, 20);
-        }else{
-            ctx.drawImage(pacSprite, x-10, y-10, 20, 20);
-            
-        }
-        
-
-       
-
-        ctx.restore();
 };
 
 // draw giant pacman body

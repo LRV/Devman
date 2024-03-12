@@ -3,6 +3,7 @@
 # 1. build 'pacman.js' by concatenating files specified in js_order
 # 2. update time stamp in index.html
 # 3. build debug.html with individual script includes
+# ./build.sh
 
 OUTPUT="pacman.js"
 PUBLIC_DIR="./public"

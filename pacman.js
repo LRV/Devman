@@ -174,7 +174,7 @@ var turboMode = false;
 var gameMode = GAME_PACMAN;
 var getGameName = (function(){
 
-    var names = ["PAC-MAN", "MS PAC-MAN", "COOKIE-MAN","CRAZY OTTO"];
+    var names = ["DEV-MAN", "MS PAC-MAN", "COOKIE-MAN","CRAZY OTTO"];
     
     return function(mode) {
         if (mode == undefined) {
@@ -187,6 +187,16 @@ var getGameName = (function(){
 var getGameDescription = (function(){
 
     var desc = [
+        [
+            "ORIGINAL ARCADE:",
+            "NAMCO (C) 1980",
+            "",
+            "PRODUCERS:",
+            "DEV79 - STVY RVRE",
+            "",
+            "RESKINED:",
+            "LUIS VILLARREAL",
+        ],
         [
             "ORIGINAL ARCADE:",
             "NAMCO (C) 1980",
@@ -2656,7 +2666,15 @@ var atlas = (function(){
         row++;
 
         // draw pacman mouth closed
-        drawAtCell(function(x,y) { drawPacmanSprite(ctx, x,y, DIR_RIGHT, 0); }, row, 0);
+        //drawAtCell(function(x,y) { drawPacmanSprite(ctx, x,y, undefined, 0); }, row, 0);
+        (function(){
+            var i;
+            var col=9;
+            for (i=0; i<4; i++) {
+                drawAtCell(function(x,y) { drawPacmanSprite(ctx, x,y, i, 0); }, row, col);
+                col+=1;
+            }
+        })();
 
         // draw pacman directions
         (function(){
@@ -2988,7 +3006,7 @@ var atlas = (function(){
         var row = 6;
         var col;
         if (frame == 0) {
-            col = 0;
+            col = 9 + dirEnum;
         }
         else {
            col = dirEnum*2+1+(frame-1);
@@ -4835,126 +4853,36 @@ var inGameMenu = (function() {
 })();
 
 //@line 1 "src/sprites.js"
+var pacSprite = new Image();
+pacSprite.src =  "https://blackmarblecollective.com/dev79/sprites/devman-open.png";
+var pacSpriteClosed = new Image();
+pacSpriteClosed.src =  "https://blackmarblecollective.com/dev79/sprites/devman-closed.png";
+
+var ghostSprite = new Image();
+ghostSprite.src =  "https://blackmarblecollective.com/dev79/sprites/ghosts/fpo-test-ghost-1.png";
+
+var ghostScaredSprite = new Image();
+ghostScaredSprite.src =  "https://blackmarblecollective.com/dev79/sprites/ghosts/fpo-test-ghost-scared.png";
+
+var defualtImageSprite = function(ctx,x,y,dirEnum,angle,mouthShift,scale,centerShift,alpha,color,rot_angle) {
+    
+        ctx.save();
+        //ctx.translate(x,y);
+        ctx.scale(scale,scale);
+
+        // To use the custom size we'll have to specify the scale parameters
+        // using the element's width and height properties - lets draw one
+        // on top in the corner:
+        ctx.drawImage(pacSprite, x-10, y-10, 20, 20);
+        ctx.restore();
+};
 //////////////////////////////////////////////////////////////////////////////////////
 // Sprites
 // (sprites are created using canvas paths)
 
 var drawGhostSprite = (function(){
 
-    // add top of the ghost head to the current canvas path
-    var addHead = (function() {
 
-        // pixel coordinates for the top of the head
-        // on the original arcade ghost sprite
-        var coords = [
-            0,6,
-            1,3,
-            2,2,
-            3,1,
-            4,1,
-            5,0,
-            8,0,
-            9,1,
-            10,1,
-            11,2,
-            12,3,
-            13,6,
-        ];
-
-        return function(ctx) {
-            var i;
-            ctx.save();
-
-            // translate by half a pixel to the right
-            // to try to force centering
-            ctx.translate(0.5,0);
-
-            ctx.moveTo(0,6);
-            ctx.quadraticCurveTo(1.5,0,6.5,0);
-            ctx.quadraticCurveTo(11.5,0,13,6);
-
-            // draw lines between pixel coordinates
-            /*
-            ctx.moveTo(coords[0],coords[1]);
-            for (i=2; i<coords.length; i+=2)
-                ctx.lineTo(coords[i],coords[i+1]);
-            */
-
-            ctx.restore();
-        };
-    })();
-
-    // add first ghost animation frame feet to the current canvas path
-    var addFeet1 = (function(){
-
-        // pixel coordinates for the first feet animation
-        // on the original arcade ghost sprite
-        var coords = [
-            13,13,
-            11,11,
-            9,13,
-            8,13,
-            8,11,
-            5,11,
-            5,13,
-            4,13,
-            2,11,
-            0,13,
-        ];
-
-        return function(ctx) {
-            var i;
-            ctx.save();
-
-            // translate half a pixel right and down
-            // to try to force centering and proper height
-            ctx.translate(0.5,0.5);
-
-            // continue previous path (assuming ghost head)
-            // by drawing lines to each of the pixel coordinates
-            for (i=0; i<coords.length; i+=2)
-                ctx.lineTo(coords[i],coords[i+1]);
-
-            ctx.restore();
-        };
-
-    })();
-
-    // add second ghost animation frame feet to the current canvas path
-    var addFeet2 = (function(){
-
-        // pixel coordinates for the second feet animation
-        // on the original arcade ghost sprite
-        var coords = [
-            13,12,
-            12,13,
-            11,13,
-            9,11,
-            7,13,
-            6,13,
-            4,11,
-            2,13,
-            1,13,
-            0,12,
-        ];
-
-        return function(ctx) {
-            var i;
-            ctx.save();
-
-            // translate half a pixel right and down
-            // to try to force centering and proper height
-            ctx.translate(0.5,0.5);
-
-            // continue previous path (assuming ghost head)
-            // by drawing lines to each of the pixel coordinates
-            for (i=0; i<coords.length; i+=2)
-                ctx.lineTo(coords[i],coords[i+1]);
-
-            ctx.restore();
-        };
-
-    })();
 
     // draw regular ghost eyes
     var addEyes = function(ctx,dirEnum){
@@ -5070,22 +4998,12 @@ var drawGhostSprite = (function(){
             color = flash ? "#FFF" : "#2121ff";
 
         if (!eyes_only) {
-            // draw body
-            ctx.beginPath();
-            addHead(ctx);
-            if (frame == 0)
-                addFeet1(ctx);
+
+            if (scared)
+                ctx.drawImage(ghostScaredSprite, -4,-4, 18, 18);
             else
-                addFeet2(ctx);
-            ctx.closePath();
-            ctx.lineJoin = 'round';
-            ctx.lineCap = 'round';
-            ctx.lineWidth = 0.5;
-            ctx.strokeStyle = color;
-            ctx.stroke();
-            ctx.lineWidth = 1;
-            ctx.fillStyle = color;
-            ctx.fill();
+                ctx.drawImage(ghostSprite, -4,-4, 18, 18);
+
         }
 
         // draw face
@@ -6277,6 +6195,7 @@ var drawDeadOttoSprite = function(ctx,x,y) {
 };
 
 // draw pacman body
+/*
 var drawPacmanSprite = function(ctx,x,y,dirEnum,angle,mouthShift,scale,centerShift,alpha,color,rot_angle) {
 
     if (mouthShift == undefined) mouthShift = 0;
@@ -6316,6 +6235,38 @@ var drawPacmanSprite = function(ctx,x,y,dirEnum,angle,mouthShift,scale,centerShi
     ctx.fill();
 
     ctx.restore();
+};
+*/
+var drawPacmanSprite = function(ctx,x,y,dirEnum,angle,mouthShift,scale,centerShift,alpha,color,rot_angle) {
+        
+        if (scale == undefined) scale = 1;
+        ctx.save();
+        ctx.translate(x,y);
+        ctx.scale(scale,scale);
+
+        var d90 = Math.PI/2;
+        if (dirEnum == DIR_UP){
+            ctx.rotate(3*d90);
+        }else if (dirEnum == DIR_RIGHT){ 
+            ctx.rotate(0);
+        }else if (dirEnum == DIR_DOWN){
+            ctx.rotate(d90);
+        }else if (dirEnum == DIR_LEFT){
+            ctx.scale(-1,1);
+        } 
+        ctx.translate(-x,-y);
+
+        if(angle===0){
+            ctx.drawImage(pacSpriteClosed, x-10, y-10, 20, 20);
+        }else{
+            ctx.drawImage(pacSprite, x-10, y-10, 20, 20);
+            
+        }
+        
+
+       
+
+        ctx.restore();
 };
 
 // draw giant pacman body
@@ -7129,6 +7080,8 @@ var drawBanana = function(ctx,x,y) {
 
     ctx.restore();
 };
+
+
 
 var drawCookie = function(ctx,x,y) {
     ctx.save();
@@ -9583,7 +9536,7 @@ var fadeNextState = function (prevState, nextState, frameDuration, continueUpdat
 // Home State
 // (the home title screen state)
 
-var homeState = (function(){
+var homeStateLegacy = (function(){
 
     var exitTo = function(s) {
         switchState(s);
@@ -9826,7 +9779,7 @@ var gameTitleState = (function() {
 
     var resetTitle = function() {
         if (yellowBtn.isSelected) {
-            name = getGameName();
+            name = "DEV-MAN"
             nameColor = gameMode == GAME_COOKIE ? "#47b8ff" : pacman.color;
         }
         else if (redBtn.isSelected) {
@@ -9944,7 +9897,7 @@ var gameTitleState = (function() {
 // Pre New Game State
 // (the main menu for the currently selected game)
 
-var preNewGameState = (function() {
+var homeState = (function() {
 
     var exitTo = function(s,fade) {
         gameTitleState.shutdown();
@@ -9962,35 +9915,24 @@ var preNewGameState = (function() {
             newGameState.setStartLevel(1);
             exitTo(newGameState, 60);
         });
-    menu.addTextButton("PLAY TURBO",
+
+    menu.addTextButton("SELECT LEVEL",
         function() { 
-            practiceMode = false;
-            turboMode = true;
-            newGameState.setStartLevel(1);
-            exitTo(newGameState, 60);
+            exitTo(selectLevelState);
         });
-    menu.addTextButton("PRACTICE",
-        function() { 
-            practiceMode = true;
-            turboMode = false;
-            exitTo(selectActState);
-        });
-    menu.addSpacer(0.5);
-    menu.addTextButton("CUTSCENES",
-        function() { 
-            exitTo(cutSceneMenuState);
-        });
+
     menu.addTextButton("ABOUT",
         function() { 
             exitTo(aboutGameState);
         });
-    menu.addSpacer(0.5);
+
+    /*menu.addSpacer(0.5);
     menu.addTextButton("BACK",
         function() {
             exitTo(homeState);
         });
     menu.backButton = menu.buttons[menu.buttonCount-1];
-
+*/
     return {
         init: function() {
             audio.startMusic.play();
@@ -10164,11 +10106,11 @@ var selectLevelState = (function() {
     var buildMenu = function(act) {
         var range = getActRange(act);
 
-        menu = new Menu("",2*tileSize,0,mapWidth-4*tileSize,3*tileSize,tileSize,tileSize+"px ArcadeR", "#EEE");
+        menu = new Menu("",2*tileSize,0,mapWidth-4*tileSize,2*tileSize,tileSize,tileSize+"px ArcadeR", "#EEE");
         var i;
-        menu.addSpacer(2);
+        //menu.addSpacer(2);
         if (range[0] < range[1]) {
-            for (i=range[0]; i<=range[1]; i++) {
+            for (i=range[0]; i<=range.length; i++) {
                 menu.addTextIconButton("LEVEL "+i,
                     (function(j){
                         return function() { 
@@ -10206,7 +10148,7 @@ var selectLevelState = (function() {
         draw: function() {
             renderer.clearMapFrame();
             renderer.renderFunc(menu.draw,menu);
-            gameTitleState.draw();
+            //gameTitleState.draw();
         },
         update: function() {
             gameTitleState.update();
@@ -10234,7 +10176,7 @@ var aboutGameState = (function() {
     menu.addSpacer(8);
     menu.addTextButton("BACK",
         function() {
-            exitTo(preNewGameState);
+            exitTo(homeState);
         });
     menu.backButton = menu.buttons[menu.buttonCount-1];
 
@@ -12705,7 +12647,7 @@ var mapPacman = new Map(28, 36, (
 mapPacman.name = "Pac-Man";
 //mapPacman.wallStrokeColor = "#47b897"; // from Pac-Man Plus
 mapPacman.wallStrokeColor = "#2121ff"; // from original
-mapPacman.wallFillColor = "#000";
+mapPacman.wallFillColor = "#FFFF00";
 mapPacman.pelletColor = "#ffb8ae";
 mapPacman.constrainGhostTurns = function(tile,openTiles) {
     // prevent ghost from turning up at these tiles
@@ -12754,6 +12696,11 @@ var getActColor = function(act) {
 };
 
 var getActRange = function(act) {
+        return [1,2,3,4,5,6,7,8,9,10,11,12,13];
+
+};
+/*
+var getActRange = function(act) {
     if (act == 1) {
         return [1,2];
     }
@@ -12765,6 +12712,7 @@ var getActRange = function(act) {
         return [start, start+3];
     }
 };
+*/
 
 var getCookieActColor = function(act) {
     var colors = [

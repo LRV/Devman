@@ -14,7 +14,7 @@ var turboMode = false;
 var gameMode = GAME_PACMAN;
 var getGameName = (function(){
 
-    var names = ["PAC-MAN", "MS PAC-MAN", "COOKIE-MAN","CRAZY OTTO"];
+    var names = ["DEV-MAN", "MS PAC-MAN", "COOKIE-MAN","CRAZY OTTO"];
     
     return function(mode) {
         if (mode == undefined) {
@@ -27,6 +27,16 @@ var getGameName = (function(){
 var getGameDescription = (function(){
 
     var desc = [
+        [
+            "ORIGINAL ARCADE:",
+            "NAMCO (C) 1980",
+            "",
+            "PRODUCERS:",
+            "DEV79 - STVY RVRE",
+            "",
+            "RESKINED:",
+            "LUIS VILLARREAL",
+        ],
         [
             "ORIGINAL ARCADE:",
             "NAMCO (C) 1980",

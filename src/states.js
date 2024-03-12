@@ -81,7 +81,7 @@ var fadeNextState = function (prevState, nextState, frameDuration, continueUpdat
 // Home State
 // (the home title screen state)
 
-var homeState = (function(){
+var homeStateLegacy = (function(){
 
     var exitTo = function(s) {
         switchState(s);
@@ -324,7 +324,7 @@ var gameTitleState = (function() {
 
     var resetTitle = function() {
         if (yellowBtn.isSelected) {
-            name = getGameName();
+            name = "DEV-MAN"
             nameColor = gameMode == GAME_COOKIE ? "#47b8ff" : pacman.color;
         }
         else if (redBtn.isSelected) {
@@ -442,7 +442,7 @@ var gameTitleState = (function() {
 // Pre New Game State
 // (the main menu for the currently selected game)
 
-var preNewGameState = (function() {
+var homeState = (function() {
 
     var exitTo = function(s,fade) {
         gameTitleState.shutdown();
@@ -460,35 +460,24 @@ var preNewGameState = (function() {
             newGameState.setStartLevel(1);
             exitTo(newGameState, 60);
         });
-    menu.addTextButton("PLAY TURBO",
+
+    menu.addTextButton("SELECT LEVEL",
         function() { 
-            practiceMode = false;
-            turboMode = true;
-            newGameState.setStartLevel(1);
-            exitTo(newGameState, 60);
+            exitTo(selectLevelState);
         });
-    menu.addTextButton("PRACTICE",
-        function() { 
-            practiceMode = true;
-            turboMode = false;
-            exitTo(selectActState);
-        });
-    menu.addSpacer(0.5);
-    menu.addTextButton("CUTSCENES",
-        function() { 
-            exitTo(cutSceneMenuState);
-        });
+
     menu.addTextButton("ABOUT",
         function() { 
             exitTo(aboutGameState);
         });
-    menu.addSpacer(0.5);
+
+    /*menu.addSpacer(0.5);
     menu.addTextButton("BACK",
         function() {
             exitTo(homeState);
         });
     menu.backButton = menu.buttons[menu.buttonCount-1];
-
+*/
     return {
         init: function() {
             audio.startMusic.play();
@@ -662,11 +651,11 @@ var selectLevelState = (function() {
     var buildMenu = function(act) {
         var range = getActRange(act);
 
-        menu = new Menu("",2*tileSize,0,mapWidth-4*tileSize,3*tileSize,tileSize,tileSize+"px ArcadeR", "#EEE");
+        menu = new Menu("",2*tileSize,0,mapWidth-4*tileSize,2*tileSize,tileSize,tileSize+"px ArcadeR", "#EEE");
         var i;
-        menu.addSpacer(2);
+        //menu.addSpacer(2);
         if (range[0] < range[1]) {
-            for (i=range[0]; i<=range[1]; i++) {
+            for (i=range[0]; i<=range.length; i++) {
                 menu.addTextIconButton("LEVEL "+i,
                     (function(j){
                         return function() { 
@@ -704,7 +693,7 @@ var selectLevelState = (function() {
         draw: function() {
             renderer.clearMapFrame();
             renderer.renderFunc(menu.draw,menu);
-            gameTitleState.draw();
+            //gameTitleState.draw();
         },
         update: function() {
             gameTitleState.update();
@@ -732,7 +721,7 @@ var aboutGameState = (function() {
     menu.addSpacer(8);
     menu.addTextButton("BACK",
         function() {
-            exitTo(preNewGameState);
+            exitTo(homeState);
         });
     menu.backButton = menu.buttons[menu.buttonCount-1];
 

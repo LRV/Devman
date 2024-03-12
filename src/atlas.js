@@ -126,7 +126,15 @@ var atlas = (function(){
         row++;
 
         // draw pacman mouth closed
-        drawAtCell(function(x,y) { drawPacmanSprite(ctx, x,y, DIR_RIGHT, 0); }, row, 0);
+        //drawAtCell(function(x,y) { drawPacmanSprite(ctx, x,y, undefined, 0); }, row, 0);
+        (function(){
+            var i;
+            var col=9;
+            for (i=0; i<4; i++) {
+                drawAtCell(function(x,y) { drawPacmanSprite(ctx, x,y, i, 0); }, row, col);
+                col+=1;
+            }
+        })();
 
         // draw pacman directions
         (function(){
@@ -458,7 +466,7 @@ var atlas = (function(){
         var row = 6;
         var col;
         if (frame == 0) {
-            col = 0;
+            col = 9 + dirEnum;
         }
         else {
            col = dirEnum*2+1+(frame-1);
